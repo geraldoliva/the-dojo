@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { projectAuth, projectStorage } from "../firebase/config";
+import { projectAuth, projectStorage, projectFirestore } from "../firebase/config";
 import { useAuthContext } from "./useAuthContext";
 
 export const useSignup = () => {
@@ -26,7 +26,14 @@ export const useSignup = () => {
       // upload user thumbnail
       const uploadPath = `thumbnails/${res.user.uid}/${thumbnail.name}`;
       const img = await projectStorage.ref(uploadPath).put(thumbnail);
-      const imgUrl = await img.ref.getDownloadURL()
+      const imgUrl = await img.ref.getDownloadURL();
+
+      // create a user document
+      await projectFirestore.collection('users').doc(res.user.uid).set({
+        online: true,
+        displayName,
+        photoURL: imgUrl
+      })
 
       // add display name to user
       await res.user.updateProfile({ displayName, photoURL: imgUrl });
