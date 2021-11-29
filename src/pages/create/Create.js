@@ -1,20 +1,20 @@
 import { useEffect, useState } from "react";
-import Select from 'react-select'
+import Select from "react-select";
 import { useCollection } from "../../hooks/useCollection";
 
 // styles
 import "./Create.css";
 
 const categories = [
-  { value: 'development', label: 'Development' },
-  { value: 'design', label: 'Design' },
-  { value: 'sales', label: 'Sales' },
-  { value: 'marketing', label: 'Marketing' },
-]
+  { value: "development", label: "Development" },
+  { value: "design", label: "Design" },
+  { value: "sales", label: "Sales" },
+  { value: "marketing", label: "Marketing" },
+];
 
 export default function Create() {
-  const {documents} = useCollection('users')
-  const [users, setUsers] = useState([])
+  const { documents } = useCollection("users");
+  const [users, setUsers] = useState([]);
 
   // form field values
   const [name, setName] = useState("");
@@ -22,18 +22,30 @@ export default function Create() {
   const [dueDate, setDueDate] = useState("");
   const [category, setCategory] = useState("");
   const [assignedUsers, setAssignedUsers] = useState([]);
+  const [formError, setFormError] = useState(null);
 
   useEffect(() => {
     if (documents) {
-      const options = documents.map(user => {
-        return {value: user, label: user.displayName}
-      })
-      setUsers(options)
+      const options = documents.map((user) => {
+        return { value: user, label: user.displayName };
+      });
+      setUsers(options);
     }
-  }, [documents])
+  }, [documents]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setFormError(null);
+
+    if (!category) {
+      setFormError("Please select a project category");
+      return;
+    }
+
+    if (assignedUsers.length < 1) {
+      setFormError("Please assign the project to at least one user");
+      return;
+    }
     console.log(name, details, dueDate, category.value, assignedUsers);
   };
 
@@ -70,7 +82,7 @@ export default function Create() {
         </label>
         <label>
           <span>Project category:</span>
-          <Select 
+          <Select
             options={categories}
             onChange={(option) => setCategory(option)}
           />
@@ -84,6 +96,7 @@ export default function Create() {
           />
         </label>
         <button className="btn">Add Project</button>
+        {formError && <p className="error">{formError}</p>}
       </form>
     </div>
   );
